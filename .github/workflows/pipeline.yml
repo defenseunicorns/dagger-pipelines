@@ -21,6 +21,9 @@ jobs:
       - name: Install k3d
         run: curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
+      - name: Create k3d cluster
+        run: k3d cluster delete && k3d cluster create -p "31999:31999@server:*"
+
       - name: Install Zarf
         uses: defenseunicorns/setup-zarf@main
         with:
@@ -29,9 +32,6 @@ jobs:
 
       - name: Zarf init
         run: zarf init -a amd64 --confirm
-
-      - name: Create k3d cluster
-        run: k3d cluster delete && k3d cluster create -p "31999:31999@server:*"
 
       - name: Run Dagger pipeline
         run: |
