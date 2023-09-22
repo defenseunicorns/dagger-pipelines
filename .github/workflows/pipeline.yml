@@ -22,7 +22,7 @@ jobs:
         run: curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
       - name: Create k3d cluster
-        run: k3d cluster delete && k3d cluster create -p "31999:31999@server:*" --k3s-arg "--tls-san=$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}')"
+        run: k3d cluster delete && k3d cluster create -p "31999:31999@server:*" --k3s-arg "--tls-san=$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}')@server:*"
 
       - name: Install Zarf
         uses: defenseunicorns/setup-zarf@main
