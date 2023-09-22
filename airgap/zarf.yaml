@@ -1,0 +1,11 @@
+kind: ZarfPackageConfig
+metadata:
+  name: airgap-pipeline-images
+  description: Dagger pipeline images for the airgap
+  version: 1.0.0
+
+components:
+  - name: airgap-pipeline-images
+    required: true
+    images:
+      - cgr.dev/chainguard/wolfi-base:latest
