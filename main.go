@@ -38,7 +38,7 @@ func main() {
 	}
 
 	// Create Zarf package
-	pkgCreateArgs := []string{".", "-a=arm64"}
+	pkgCreateArgs := []string{".", "-a=amd64"}
 	ctr, err = container.CreateZarfPackage(ctx, ctr, pkgCreateArgs...)
 	if err != nil {
 		fmt.Println(err)
@@ -46,7 +46,7 @@ func main() {
 	}
 
 	// Deploy Zarf package
-	pkgDeployArgs := []string{"zarf-package-podinfo-arm64-1.0.0.tar.zst"}
+	pkgDeployArgs := []string{"zarf-package-podinfo-amd64-1.0.0.tar.zst"}
 	_, err = container.DeployZarfPackage(ctx, ctr, pkgDeployArgs...)
 	if err != nil {
 		fmt.Println(err)
@@ -54,7 +54,7 @@ func main() {
 	}
 
 	// Publish Zarf package
-	pkgPublishArgs := []string{"zarf-package-podinfo-arm64-1.0.0.tar.zst", "oci://" + auth.URL}
+	pkgPublishArgs := []string{"zarf-package-podinfo-amd64-1.0.0.tar.zst", "oci://" + auth.URL}
 	_, err = container.PublishZarfPackage(ctx, ctr, pkgPublishArgs...)
 	if err != nil {
 		fmt.Println(err)
