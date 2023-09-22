@@ -11,6 +11,12 @@ import (
 	"dagger.io/dagger"
 )
 
+type RegistryAuth struct {
+	URL      string
+	Username string
+	Password string
+}
+
 // NewZarfContainer creates a new container to run Zarf commands from.
 func NewZarfContainer(client *dagger.Client) *dagger.Container {
 	currentUser, err := user.Current()
@@ -33,12 +39,8 @@ func NewZarfContainer(client *dagger.Client) *dagger.Container {
 		WithEntrypoint([]string{"/usr/bin/zarf"})
 }
 
-func ZarfRegistryLogin(ctx context.Context, ctr *dagger.Container, args ...string) (*dagger.Container, error) {
-	username := os.Getenv("REGISTRY_USERNAME")
-	password := os.Getenv("REGISTRY_PASSWORD")
-	url := os.Getenv("REGISTRY_URL")
-
-	base := []string{"tools", "registry", "login", "--username", username, "--password", password, url}
+func ZarfRegistryLogin(ctx context.Context, ctr *dagger.Container, auth *RegistryAuth, args ...string) (*dagger.Container, error) {
+	base := []string{"tools", "registry", "login", "--username", auth.Username, "--password", auth.Password, auth.URL}
 	cmd := append(base, args...)
 
 	ctr = ctr.WithExec(cmd).Pipeline("Create Zarf Package")
