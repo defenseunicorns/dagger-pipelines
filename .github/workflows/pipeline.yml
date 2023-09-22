@@ -1,0 +1,32 @@
+name: dagger
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  zarf-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo 
+        uses: actions/checkout@v4
+
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Install Dagger CLI
+        run: cd /usr/local && { curl -L https://dl.dagger.io/dagger/install.sh | sh; cd -; }
+
+      - name: Install k3d
+        run: curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+      - name: Create k3d cluster
+        run: k3d cluster delete && k3d cluster create -p "31999:31999@server:*"
+
+      - name: Run Dagger pipeline
+        run: |
+            REGISTRY_URL="127.0.0.1:31999"
+            REGISTRY_USERNAME="$(zarf tools kubectl get secret zarf-state -n zarf -o jsonpath='{.data.state}' | base64 -d | jq -r .registryInfo.pushUsername)"
+            REGISTRY_PASSWORD=="$(zarf tools kubectl get secret zarf-state -n zarf -o jsonpath='{.data.state}' | base64 -d | jq -r .registryInfo.pushPassword)"
+            dagger run go run main.go
