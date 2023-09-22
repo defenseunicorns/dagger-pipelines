@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"runtime"
 
 	"main/pkg/container"
 
@@ -16,6 +17,9 @@ func main() {
 	auth.URL = os.Getenv("REGISTRY_URL")
 	auth.Username = os.Getenv("REGISTRY_USERNAME")
 	auth.Password = os.Getenv("REGISTRY_PASSWORD")
+
+	arch := runtime.GOARCH
+	pkgPath := fmt.Sprintf("zarf-package-podinfo-%s-1.0.0.tar.zst", arch)
 
 	ctx := context.Background()
 
@@ -38,7 +42,7 @@ func main() {
 	}
 
 	// Create Zarf package
-	pkgCreateArgs := []string{".", "-a=amd64"}
+	pkgCreateArgs := []string{".", "-a", arch}
 	ctr, err = container.CreateZarfPackage(ctx, ctr, pkgCreateArgs...)
 	if err != nil {
 		fmt.Println(err)
@@ -46,7 +50,7 @@ func main() {
 	}
 
 	// Deploy Zarf package
-	pkgDeployArgs := []string{"zarf-package-podinfo-amd64-1.0.0.tar.zst"}
+	pkgDeployArgs := []string{pkgPath}
 	_, err = container.DeployZarfPackage(ctx, ctr, pkgDeployArgs...)
 	if err != nil {
 		fmt.Println(err)
@@ -54,7 +58,7 @@ func main() {
 	}
 
 	// Publish Zarf package
-	pkgPublishArgs := []string{"zarf-package-podinfo-amd64-1.0.0.tar.zst", "oci://" + auth.URL}
+	pkgPublishArgs := []string{pkgPath, "oci://" + auth.URL}
 	_, err = container.PublishZarfPackage(ctx, ctr, pkgPublishArgs...)
 	if err != nil {
 		fmt.Println(err)
