@@ -35,7 +35,7 @@ jobs:
 
       - name: Run Dagger pipeline
         run: |
-            export REGISTRY_URL="127.0.0.1:31999"
+            export REGISTRY_URL="172.17.0.1:31999"
             export REGISTRY_USERNAME="$(zarf tools kubectl get secret zarf-state -n zarf -o jsonpath='{.data.state}' | base64 -d | jq -r .registryInfo.pushUsername)"
             export REGISTRY_PASSWORD="$(zarf tools kubectl get secret zarf-state -n zarf -o jsonpath='{.data.state}' | base64 -d | jq -r .registryInfo.pushPassword)"
             dagger run go run main.go
