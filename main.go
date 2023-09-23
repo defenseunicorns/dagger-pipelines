@@ -12,15 +12,8 @@ import (
 )
 
 func main() {
-	auth := &container.RegistryAuth{}
-
-	auth.URL = os.Getenv("REGISTRY_URL")
-	auth.Username = os.Getenv("REGISTRY_USERNAME")
-	auth.Password = os.Getenv("REGISTRY_PASSWORD")
-
 	arch := runtime.GOARCH
 	pkgPath := fmt.Sprintf("zarf-package-podinfo-%s-1.0.0.tar.zst", arch)
-
 	ctx := context.Background()
 
 	// Create Dagger client
@@ -35,6 +28,7 @@ func main() {
 	ctr := container.NewZarfContainer(client)
 
 	// Login to OCI registry
+	auth := container.NewRegistryAuth()
 	ctr, err = container.ZarfRegistryLogin(ctx, ctr, auth)
 	if err != nil {
 		fmt.Println(err)

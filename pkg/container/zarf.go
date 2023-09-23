@@ -17,6 +17,15 @@ type RegistryAuth struct {
 	Password string
 }
 
+func NewRegistryAuth() *RegistryAuth {
+	auth := &RegistryAuth{
+		URL:      os.Getenv("REGISTRY_URL"),
+		Username: os.Getenv("REGISTRY_USERNAME"),
+		Password: os.Getenv("REGISTRY_PASSWORD"),
+	}
+	return auth
+}
+
 // NewZarfContainer creates a new container to run Zarf commands from.
 func NewZarfContainer(client *dagger.Client) *dagger.Container {
 	currentUser, err := user.Current()
