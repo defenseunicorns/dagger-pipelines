@@ -9,6 +9,8 @@ on:
 jobs:
   zarf-package:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_GATEWAY_IP: "172.17.0.1"
     steps:
       - name: Checkout repo 
         uses: actions/checkout@v4
@@ -25,7 +27,7 @@ jobs:
         run: curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
       - name: Create k3d cluster
-        run: k3d cluster delete && k3d cluster create -p "31999:31999@server:*" --k3s-arg "--tls-san=$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}')@server:*"
+        run: k3d cluster delete && k3d cluster create -p "31999:31999@server:*" --k3s-arg "--tls-san=${DOCKER_GATEWAY_IP}@server:*"
 
       - name: Install Zarf
         uses: defenseunicorns/setup-zarf@main
@@ -38,7 +40,7 @@ jobs:
 
       - name: Run Dagger pipeline
         run: |
-            export REGISTRY_URL="172.17.0.1:31999"
-            export REGISTRY_USERNAME="$(zarf tools kubectl get secret zarf-state -n zarf -o jsonpath='{.data.state}' | base64 -d | jq -r .registryInfo.pushUsername)"
-            export REGISTRY_PASSWORD="$(zarf tools kubectl get secret zarf-state -n zarf -o jsonpath='{.data.state}' | base64 -d | jq -r .registryInfo.pushPassword)"
+            export REGISTRY_URL="${DOCKER_GATEWAY_IP}:31999"
+            export REGISTRY_USERNAME="zarf-push"
+            export REGISTRY_PASSWORD="$(zarf tools get-creds registry)"
             dagger run go run main.go
